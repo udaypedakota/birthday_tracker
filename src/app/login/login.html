@@ -1,0 +1,76 @@
+<div class="login-wrapper">
+
+  <!-- Left Panel -->
+  <div class="left-panel">
+    <!-- Floating balloons -->
+    <div class="balloon b1">🎈</div>
+    <div class="balloon b2">🎈</div>
+    <div class="balloon b3">🎈</div>
+    <div class="balloon b4">🎈</div>
+
+    <div class="left-content">
+      <div class="app-icon">🎂</div>
+      <h1>Birthday<br/><span>Celebration Tracker</span></h1>
+      <p>Track birthdays, manage collections, record expenses and celebrate your team together!</p>
+    </div>
+
+    <!-- Confetti pieces -->
+    <div class="confetti-container">
+      <span class="cp" *ngFor="let c of confetti"
+        [style.left.%]="(c * 7.3) % 100"
+        [style.animation-delay]="(c * 0.15) + 's'"
+        [style.animation-duration]="(2.5 + (c % 3) * 0.5) + 's'"
+        [style.background]="['#ff6b6b','#ffd93d','#6bcb77','#4d96ff','#ff922b','#cc5de8','#f06595','#74c0fc'][c % 8]">
+      </span>
+    </div>
+  </div>
+
+  <!-- Right Panel -->
+  <div class="right-panel">
+    <div class="login-card">
+      <div class="card-header">
+        <div class="card-emoji">🥳</div>
+        <h2>Welcome Back!</h2>
+        <p>Sign in to manage your team celebrations</p>
+      </div>
+
+      <div class="error-msg" *ngIf="errorMsg">⚠ {{ errorMsg }}</div>
+
+      <div class="form-group">
+        <label>Email Address</label>
+        <div class="input-wrap">
+          <span class="icon">✉</span>
+          <input type="text" [(ngModel)]="username" placeholder="you@intellectinfo.com" (keyup.enter)="login()" />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Password</label>
+        <div class="input-wrap">
+          <span class="icon">🔒</span>
+          <input [type]="showPassword ? 'text' : 'password'" [(ngModel)]="password" placeholder="Enter password" (keyup.enter)="login()" />
+          <span class="toggle-eye" (click)="showPassword = !showPassword">{{ showPassword ? '🙈' : '👁️' }}</span>
+        </div>
+      </div>
+
+      <button class="login-btn" (click)="login()">🎉 Let's Celebrate →</button>
+
+      <div class="hint">
+        💡 <b>Admin:</b> admin@intellectinfo.com
+        &nbsp;|&nbsp;
+        <span style="cursor:pointer;color:#4d96ff;" (click)="showMemberList = !showMemberList">
+          👥 {{ showMemberList ? 'Hide' : 'View' }} Employee Logins
+        </span>
+        <div *ngIf="showMemberList" style="margin-top:10px;max-height:200px;overflow-y:auto;border:1px solid #eee;border-radius:8px;padding:8px;background:#f9f9f9;">
+          <div *ngFor="let m of members" style="padding:4px 0;font-size:0.78rem;border-bottom:1px solid #f0f0f0;">
+            👤 <b>{{ m.name }}</b><br/>
+            <span style="color:#555;">{{ m.username }}</span>
+            &nbsp;/&nbsp;<span style="color:#888;">SysAdmin</span>
+          </div>
+        </div>
+      </div>
+      <div class="footer">© 2025 Intellect Information Technologies</div>
+    </div>
+  </div>
+
+</div>
