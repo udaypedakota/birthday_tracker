@@ -1,4 +1,5 @@
 const express = require('express');
+const cron = require('node-cron');
 const fs = require('fs');
 const path = require('path');
 const axios = require('axios');
@@ -293,14 +294,14 @@ app.post('/api/send-birthday-emails', async (req, res) => {
   res.json({ success: true });
 });
 
-async function sendBirthdayEmails() {
+async function sendBirthdayEmails(targetDate) {
   try {
-    const today = new Date().toISOString().slice(0, 10);
+    const date = targetDate || new Date().toISOString().slice(0, 10);
     const events = readJSON('events.json');
     const employees = readJSON('employees.json');
 
-    const birthdayPeople = events.filter(e => e.celebrationDate === today);
-    if (birthdayPeople.length === 0) { console.log(`[${today}] No birthdays today.`); return; }
+    const birthdayPeople = events.filter(e => e.celebrationDate === date);
+    if (birthdayPeople.length === 0) { console.log(`[${date}] No birthdays today.`); return; }
 
     for (const person of birthdayPeople) {
       const emp = employees.find(e => e.employeeId === person.employeeId);
@@ -322,13 +323,21 @@ async function sendBirthdayEmails() {
         );
       }
     }
-    console.log(`[${today}] Birthday emails sent for: ${birthdayPeople.map(p => p.employeeName).join(', ')}`);
+    console.log(`[${date}] Birthday emails sent for: ${birthdayPeople.map(p => p.employeeName).join(', ')}`);
   } catch (err) {
     console.error('Birthday email error:', err.response?.data || err.message);
   }
 }
 
+// Every day at 12:00 AM — send emails for tomorrow's birthdays
+cron.schedule('0 0 * * *', () => {
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  const tomorrowDate = tomorrow.toISOString().slice(0, 10);
+  console.log(`[CRON] Checking birthdays for tomorrow: ${tomorrowDate}`);
+  sendBirthdayEmails(tomorrowDate);
+});
+
 app.listen(PORT, () => {
   console.log(`🎂 Birthday Tracker API running on http://localhost:${PORT}`);
-  sendBirthdayEmails();
 });
