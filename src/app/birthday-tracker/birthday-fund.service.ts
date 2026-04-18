@@ -59,23 +59,20 @@ export class BirthdayFundService {
     return this.contributions.filter(c => c.eventId === eventId);
   }
 
-  addContribution(c: Omit<Contribution, 'id'>): void {
+  addContribution(c: Omit<Contribution, 'id'>): Observable<any> {
     const newC = { ...c, id: this.uid() };
     this.contributions = [...this.contributions, newC];
-    this.http.post(`${API}/contributions`, newC).pipe(catchError(() => of(null))).subscribe();
+    return this.http.post(`${API}/contributions`, newC).pipe(catchError(() => of(null)));
   }
 
-  updateContributionStatus(id: string, status: 'paid' | 'pending', amount?: number): void {
-    this.contributions = this.contributions.map(c => {
+  updateContributionStatus(id: string, status: 'paid' | 'pending', amount?: number): Observable<any> {
+    const updated = this.contributions.map(c => {
       if (c.id !== id) return c;
-      const updated = {
-        ...c, status,
-        amount: amount ?? c.amount,
-        paidOn: status === 'paid' ? new Date().toISOString().slice(0, 10) : c.paidOn
-      };
-      this.http.put(`${API}/contributions/${id}`, updated).pipe(catchError(() => of(null))).subscribe();
-      return updated;
+      return { ...c, status, amount: amount ?? c.amount, paidOn: status === 'paid' ? new Date().toISOString().slice(0, 10) : c.paidOn };
     });
+    this.contributions = updated;
+    const item = updated.find(c => c.id === id)!;
+    return this.http.put(`${API}/contributions/${id}`, item).pipe(catchError(() => of(null)));
   }
 
   deleteContribution(id: string): void {

@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, NgZone } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -32,7 +32,7 @@ const EMPLOYEES: Employee[] = [];
   styleUrl: './birthday-tracker.css',
 })
 export class BirthdayTrackerComponent implements OnInit, OnDestroy {
-  constructor(public svc: BirthdayFundService, public router: Router, private zone: NgZone) {}
+  constructor(public svc: BirthdayFundService, public router: Router) {}
 
   today = '';
   currentTime = '';
@@ -217,24 +217,23 @@ export class BirthdayTrackerComponent implements OnInit, OnDestroy {
     const now = Date.now();
     if (now - this.lastClick < 500) return;
     this.lastClick = now;
-    this.zone.runOutsideAngular(() => {
-      const contribs = this.svc.getContributionsByEvent(this.selectedEventId);
-      const existing = contribs.find(c => c.contributorId === employeeId);
-      if (existing) {
-        this.svc.updateContributionStatus(existing.id, status, this.fixedAmount);
-      } else if (status === 'paid') {
-        this.svc.addContribution({
-          eventId: this.selectedEventId,
-          contributorId: employeeId,
-          contributorName: employeeName,
-          amount: this.fixedAmount,
-          paidOn: today(),
-          status: 'paid',
-        });
-      }
-      // re-enter zone only to update UI
-      this.zone.run(() => {});
-    });
+    const contribs = this.svc.getContributionsByEvent(this.selectedEventId);
+    const existing = contribs.find(c => c.contributorId === employeeId);
+    const save$ = existing
+      ? this.svc.updateContributionStatus(existing.id, status, this.fixedAmount)
+      : status === 'paid'
+        ? this.svc.addContribution({
+            eventId: this.selectedEventId,
+            contributorId: employeeId,
+            contributorName: employeeName,
+            amount: this.fixedAmount,
+            paidOn: today(),
+            status: 'paid',
+          })
+        : null;
+    if (save$) {
+      save$.subscribe(() => this.svc.load().subscribe(() => this.refresh()));
+    }
   }
 
   // ── Expense CRUD ─────────────────────────────────────
