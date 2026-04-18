@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, forkJoin, tap, catchError, of } from 'rxjs';
 import { BirthdayEvent, Contribution, Expense, EventSummary } from './birthday-fund.models';
 
-const API = window.location.hostname === 'localhost' ? 'http://localhost:3000/api' : 'https://birthday-tracker-rdtp.onrender.com/api';
+const API = window.location.hostname === 'localhost' ? 'http://localhost:3000/api' : 'https://birthday-tracker-szmx.onrender.com/api';
 
 @Injectable({ providedIn: 'root' })
 export class BirthdayFundService {
