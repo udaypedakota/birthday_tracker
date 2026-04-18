@@ -20,7 +20,7 @@ export class BirthdayFundService {
 
   load(): Observable<any> {
     return forkJoin({
-      events:        this.http.get<BirthdayEvent[]>('assets/data/events.json'),
+      events:        this.http.get<BirthdayEvent[]>(`${API}/events`).pipe(catchError(() => this.http.get<BirthdayEvent[]>('assets/data/events.json'))),
       contributions: this.http.get<Contribution[]>(`${API}/contributions`).pipe(catchError(() => this.http.get<Contribution[]>('assets/data/contributions.json'))),
       expenses:      this.http.get<Expense[]>(`${API}/expenses`).pipe(catchError(() => this.http.get<Expense[]>('assets/data/expenses.json'))),
     }).pipe(tap(data => {

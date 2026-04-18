@@ -294,9 +294,14 @@ app.post('/api/send-birthday-emails', async (req, res) => {
   res.json({ success: true });
 });
 
+function getLocalDate() {
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+}
+
 async function sendBirthdayEmails(targetDate) {
   try {
-    const date = targetDate || new Date().toISOString().slice(0, 10);
+    const date = targetDate || getLocalDate();
     const events = readJSON('events.json');
     const employees = readJSON('employees.json');
 
@@ -329,13 +334,11 @@ async function sendBirthdayEmails(targetDate) {
   }
 }
 
-// Every day at 12:00 AM — send emails for tomorrow's birthdays
-cron.schedule('0 0 * * *', () => {
-  const tomorrow = new Date();
-  tomorrow.setDate(tomorrow.getDate() + 1);
-  const tomorrowDate = tomorrow.toISOString().slice(0, 10);
-  console.log(`[CRON] Checking birthdays for tomorrow: ${tomorrowDate}`);
-  sendBirthdayEmails(tomorrowDate);
+// TEMP TEST — runs at 10:10 AM for today's birthdays
+cron.schedule('14 10 * * *', () => {
+  const todayDate = getLocalDate();
+  console.log(`[CRON] Checking birthdays for today: ${todayDate}`);
+  sendBirthdayEmails(todayDate);
 });
 
 app.listen(PORT, () => {
