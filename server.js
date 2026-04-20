@@ -313,8 +313,7 @@ cron.schedule('0 0 * * *', () => {
   sendBirthdayEmails(todayDate);
 });
 
-connectDB().then(() => {
-  app.listen(PORT, () => {
-    console.log(`🎂 Birthday Tracker API running on http://localhost:${PORT}`);
-  });
-}).catch(err => console.error('MongoDB connection error:', err));
+app.listen(PORT, () => {
+  console.log(`🎂 Birthday Tracker API running on http://localhost:${PORT}`);
+  connectDB().catch(err => console.error('MongoDB connection error:', err));
+});
