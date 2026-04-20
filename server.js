@@ -3,11 +3,33 @@ const cron = require('node-cron');
 const fs = require('fs');
 const path = require('path');
 const axios = require('axios');
+const { MongoClient } = require('mongodb');
 
 require('dotenv').config();
 const BREVO_API_KEY = process.env.BREVO_API_KEY;
 const FROM_EMAIL = { name: 'Birthday Tracker', email: process.env.FROM_EMAIL };
 const PORT = process.env.PORT || 3000;
+const MONGO_URI = process.env.MONGO_URI;
+
+let db;
+async function connectDB() {
+  const client = new MongoClient(MONGO_URI);
+  await client.connect();
+  db = client.db('birthday_tracker');
+  console.log('✅ MongoDB connected');
+  const DATA_DIR = path.join(__dirname, 'src/assets/data');
+  for (const col of ['events', 'contributions', 'expenses', 'employees']) {
+    const count = await db.collection(col).countDocuments();
+    if (count === 0) {
+      const file = path.join(DATA_DIR, `${col}.json`);
+      if (fs.existsSync(file)) {
+        const data = JSON.parse(fs.readFileSync(file, 'utf8'));
+        if (data.length > 0) await db.collection(col).insertMany(data);
+        console.log(`Seeded ${col} with ${data.length} records`);
+      }
+    }
+  }
+}
 
 async function sendEmail(toEmail, subject, htmlContent) {
   await axios.post(
@@ -23,7 +45,6 @@ function getInitials(name) {
   return (parts[parts.length - 1][0] + parts[0][0]).toUpperCase();
 }
 
-// Circle with initials — works in all email clients
 function initialsCircle(name, bgColor, borderColor, textColor) {
   const initials = getInitials(name);
   return `
@@ -49,23 +70,16 @@ function birthdayPersonTemplate(name) {
   <title>Happy Birthday</title>
 </head>
 <body style="margin:0;padding:0;background-color:#fff0e6;font-family:Arial,Helvetica,sans-serif;">
-
 <table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#fff0e6">
 <tr><td align="center" style="padding:30px 10px;">
-
-  <!-- Card -->
   <table width="680" cellpadding="0" cellspacing="0" border="0"
     style="max-width:680px;width:100%;background-color:#ffffff;border:1px solid #ffd0a0;">
-
-    <!-- Confetti -->
     <tr>
       <td align="center" bgcolor="#fffbe6"
         style="padding:14px 20px;font-size:22px;letter-spacing:4px;border-bottom:3px solid #ffcc80;">
         🎊 &nbsp;🎉 &nbsp;🎈 &nbsp;🎁 &nbsp;🎀 &nbsp;🥳 &nbsp;🎈 &nbsp;🎉 &nbsp;🎊
       </td>
     </tr>
-
-    <!-- Red header -->
     <tr>
       <td align="center" bgcolor="#ff6b6b" style="padding:60px 32px 50px;">
         ${circle}
@@ -79,16 +93,12 @@ function birthdayPersonTemplate(name) {
         </td></tr></table>
       </td>
     </tr>
-
-    <!-- Divider -->
     <tr>
       <td align="center" bgcolor="#ff8e53"
         style="padding:10px 20px;font-size:20px;letter-spacing:6px;color:#ffffff;font-family:Arial,sans-serif;">
         🎈 &nbsp;🎁 &nbsp;🎀 &nbsp;🎂 &nbsp;🎁 &nbsp;🎈
       </td>
     </tr>
-
-    <!-- Body -->
     <tr>
       <td align="center" bgcolor="#ffffff" style="padding:50px 64px;">
         <table cellpadding="0" cellspacing="0" border="0" width="100%"><tr><td align="center">
@@ -100,13 +110,10 @@ function birthdayPersonTemplate(name) {
             May this year bring you endless joy, great success, and all the happiness you truly deserve.<br/>
             You are an amazing part of our team &mdash; keep shining and inspiring everyone around you! 🌟
           </p>
-          <p style="font-size:32px;margin:0 0 20px;letter-spacing:8px;font-family:Arial,sans-serif;">🎈 &nbsp;🎁 &nbsp;🎀 &nbsp;🎈</p>
           <p style="font-size:14px;color:#b2bec3;margin:0;font-family:Arial,sans-serif;">With love from the Intellect Family ❤️</p>
         </td></tr></table>
       </td>
     </tr>
-
-    <!-- Footer -->
     <tr>
       <td align="center" bgcolor="#f8f9fa" style="padding:14px;border-top:1px solid #eeeeee;">
         <p style="margin:0;font-size:12px;color:#aaaaaa;font-family:Arial,sans-serif;">
@@ -114,11 +121,9 @@ function birthdayPersonTemplate(name) {
         </p>
       </td>
     </tr>
-
   </table>
 </td></tr>
 </table>
-
 </body>
 </html>`;
 }
@@ -133,23 +138,16 @@ function notificationTemplate(birthdayPersonName) {
   <title>Birthday Alert</title>
 </head>
 <body style="margin:0;padding:0;background-color:#ede7ff;font-family:Arial,Helvetica,sans-serif;">
-
 <table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#ede7ff">
 <tr><td align="center" style="padding:30px 10px;">
-
-  <!-- Card -->
   <table width="680" cellpadding="0" cellspacing="0" border="0"
     style="max-width:680px;width:100%;background-color:#ffffff;border:1px solid #c9b8ff;">
-
-    <!-- Confetti -->
     <tr>
       <td align="center" bgcolor="#f3f0ff"
         style="padding:14px 20px;font-size:22px;letter-spacing:4px;border-bottom:3px solid #c9b8ff;">
         🎊 &nbsp;🎉 &nbsp;🎈 &nbsp;🎁 &nbsp;🎀 &nbsp;🥳 &nbsp;🎈 &nbsp;🎉 &nbsp;🎊
       </td>
     </tr>
-
-    <!-- Purple header -->
     <tr>
       <td align="center" bgcolor="#6c5ce7" style="padding:60px 32px 50px;">
         ${circle}
@@ -163,16 +161,12 @@ function notificationTemplate(birthdayPersonName) {
         </td></tr></table>
       </td>
     </tr>
-
-    <!-- Divider -->
     <tr>
       <td align="center" bgcolor="#8b7cf8"
         style="padding:10px 20px;font-size:20px;letter-spacing:6px;color:#ffffff;font-family:Arial,sans-serif;">
         🎈 &nbsp;🎁 &nbsp;🎀 &nbsp;🎂 &nbsp;🎁 &nbsp;🎈
       </td>
     </tr>
-
-    <!-- Body -->
     <tr>
       <td align="center" bgcolor="#ffffff" style="padding:50px 64px;">
         <table cellpadding="0" cellspacing="0" border="0" width="100%"><tr><td align="center">
@@ -184,22 +178,10 @@ function notificationTemplate(birthdayPersonName) {
             Take a moment to walk up to <strong>${birthdayPersonName}</strong> and give them your warmest wishes.<br/>
             A simple wish from you can make their entire day unforgettable. 😊
           </p>
-          <table cellpadding="0" cellspacing="0" border="0" align="center">
-            <tr>
-              <td align="center" bgcolor="#f3f0ff"
-                style="padding:16px 36px;border:2px solid #6c5ce7;">
-                <span style="font-size:15px;color:#6c5ce7;font-weight:bold;font-family:Arial,sans-serif;">
-                  💬 Go ahead and wish them today!
-                </span>
-              </td>
-            </tr>
-          </table>
           <p style="font-size:14px;color:#b2bec3;margin:28px 0 0;font-family:Arial,sans-serif;">With love from the Intellect Family ❤️</p>
         </td></tr></table>
       </td>
     </tr>
-
-    <!-- Footer -->
     <tr>
       <td align="center" bgcolor="#f8f9fa" style="padding:14px;border-top:1px solid #eeeeee;">
         <p style="margin:0;font-size:12px;color:#aaaaaa;font-family:Arial,sans-serif;">
@@ -207,11 +189,9 @@ function notificationTemplate(birthdayPersonName) {
         </p>
       </td>
     </tr>
-
   </table>
 </td></tr>
 </table>
-
 </body>
 </html>`;
 }
@@ -227,73 +207,58 @@ app.use((req, res, next) => {
   next();
 });
 
-const DATA_DIR = path.join(__dirname, 'src/assets/data');
-
-// ensure data files exist
-['events.json','contributions.json','expenses.json','employees.json'].forEach(f => {
-  const fp = path.join(DATA_DIR, f);
-  if (!fs.existsSync(fp)) fs.writeFileSync(fp, '[]', 'utf8');
-});
-function readJSON(file) { return JSON.parse(fs.readFileSync(path.join(DATA_DIR, file), 'utf8')); }
-function writeJSON(file, data) { fs.writeFileSync(path.join(DATA_DIR, file), JSON.stringify(data, null, 2), 'utf8'); }
-
-// ── Health check ────────────────────────────────────
+// ── Health check ─────────────────────────────────────
 app.get('/', (req, res) => res.json({ status: 'Birthday Tracker API running' }));
 
-// ── Events ──────────────────────────────────────────
-app.get('/api/events', (req, res) => res.json(readJSON('events.json')));
-app.put('/api/events/:id', (req, res) => {
-  const events = readJSON('events.json');
-  const idx = events.findIndex(e => e.id === req.params.id);
-  if (idx === -1) return res.status(404).json({ error: 'Not found' });
-  events[idx] = { ...events[idx], ...req.body };
-  writeJSON('events.json', events);
+// ── Events ───────────────────────────────────────────
+app.get('/api/events', async (req, res) => {
+  const data = await db.collection('events').find({}, { projection: { _id: 0 } }).toArray();
+  res.json(data);
+});
+app.post('/api/events', async (req, res) => {
+  await db.collection('events').insertOne({ ...req.body });
   res.json({ success: true });
 });
-app.post('/api/events', (req, res) => {
-  const events = readJSON('events.json');
-  events.push(req.body);
-  writeJSON('events.json', events);
+app.put('/api/events/:id', async (req, res) => {
+  await db.collection('events').updateOne({ id: req.params.id }, { $set: req.body });
   res.json({ success: true });
 });
-app.delete('/api/events/:id', (req, res) => {
-  writeJSON('events.json', readJSON('events.json').filter(e => e.id !== req.params.id));
-  writeJSON('contributions.json', readJSON('contributions.json').filter(c => c.eventId !== req.params.id));
-  writeJSON('expenses.json', readJSON('expenses.json').filter(x => x.eventId !== req.params.id));
+app.delete('/api/events/:id', async (req, res) => {
+  await db.collection('events').deleteOne({ id: req.params.id });
+  await db.collection('contributions').deleteMany({ eventId: req.params.id });
+  await db.collection('expenses').deleteMany({ eventId: req.params.id });
   res.json({ success: true });
 });
 
-// ── Contributions ────────────────────────────────────
-app.get('/api/contributions', (req, res) => res.json(readJSON('contributions.json')));
-app.post('/api/contributions', (req, res) => {
-  const all = readJSON('contributions.json');
-  all.push(req.body);
-  writeJSON('contributions.json', all);
+// ── Contributions ─────────────────────────────────────
+app.get('/api/contributions', async (req, res) => {
+  const data = await db.collection('contributions').find({}, { projection: { _id: 0 } }).toArray();
+  res.json(data);
+});
+app.post('/api/contributions', async (req, res) => {
+  await db.collection('contributions').insertOne({ ...req.body });
   res.json({ success: true });
 });
-app.put('/api/contributions/:id', (req, res) => {
-  const all = readJSON('contributions.json');
-  const idx = all.findIndex(c => c.id === req.params.id);
-  if (idx === -1) return res.status(404).json({ error: 'Not found' });
-  all[idx] = { ...all[idx], ...req.body };
-  writeJSON('contributions.json', all);
+app.put('/api/contributions/:id', async (req, res) => {
+  await db.collection('contributions').updateOne({ id: req.params.id }, { $set: req.body });
   res.json({ success: true });
 });
-app.delete('/api/contributions/:id', (req, res) => {
-  writeJSON('contributions.json', readJSON('contributions.json').filter(c => c.id !== req.params.id));
+app.delete('/api/contributions/:id', async (req, res) => {
+  await db.collection('contributions').deleteOne({ id: req.params.id });
   res.json({ success: true });
 });
 
-// ── Expenses ─────────────────────────────────────────
-app.get('/api/expenses', (req, res) => res.json(readJSON('expenses.json')));
-app.post('/api/expenses', (req, res) => {
-  const all = readJSON('expenses.json');
-  all.push(req.body);
-  writeJSON('expenses.json', all);
+// ── Expenses ──────────────────────────────────────────
+app.get('/api/expenses', async (req, res) => {
+  const data = await db.collection('expenses').find({}, { projection: { _id: 0 } }).toArray();
+  res.json(data);
+});
+app.post('/api/expenses', async (req, res) => {
+  await db.collection('expenses').insertOne({ ...req.body });
   res.json({ success: true });
 });
-app.delete('/api/expenses/:id', (req, res) => {
-  writeJSON('expenses.json', readJSON('expenses.json').filter(x => x.id !== req.params.id));
+app.delete('/api/expenses/:id', async (req, res) => {
+  await db.collection('expenses').deleteOne({ id: req.params.id });
   res.json({ success: true });
 });
 
@@ -311,15 +276,14 @@ function getLocalDate() {
 async function sendBirthdayEmails(targetDate) {
   try {
     const date = targetDate || getLocalDate();
-    const events = readJSON('events.json');
-    const employees = readJSON('employees.json');
+    const events = await db.collection('events').find({}, { projection: { _id: 0 } }).toArray();
+    const employees = await db.collection('employees').find({}, { projection: { _id: 0 } }).toArray();
 
     const birthdayPeople = events.filter(e => e.celebrationDate === date);
     if (birthdayPeople.length === 0) { console.log(`[${date}] No birthdays today.`); return; }
 
     for (const person of birthdayPeople) {
       const emp = employees.find(e => e.employeeId === person.employeeId);
-
       if (emp) {
         await sendEmail(
           emp.email,
@@ -327,7 +291,6 @@ async function sendBirthdayEmails(targetDate) {
           birthdayPersonTemplate(person.employeeName)
         );
       }
-
       const others = employees.filter(e => e.employeeId !== person.employeeId);
       for (const other of others) {
         await sendEmail(
@@ -343,13 +306,15 @@ async function sendBirthdayEmails(targetDate) {
   }
 }
 
-// TEMP TEST — runs at 10:10 AM for today's birthdays
-cron.schedule('14 10 * * *', () => {
+// Every day at 12:00 AM — send emails for today's birthdays
+cron.schedule('0 0 * * *', () => {
   const todayDate = getLocalDate();
   console.log(`[CRON] Checking birthdays for today: ${todayDate}`);
   sendBirthdayEmails(todayDate);
 });
 
-app.listen(PORT, () => {
-  console.log(`🎂 Birthday Tracker API running on http://localhost:${PORT}`);
-});
+connectDB().then(() => {
+  app.listen(PORT, () => {
+    console.log(`🎂 Birthday Tracker API running on http://localhost:${PORT}`);
+  });
+}).catch(err => console.error('MongoDB connection error:', err));
