@@ -7,7 +7,7 @@ const axios = require('axios');
 require('dotenv').config();
 const BREVO_API_KEY = process.env.BREVO_API_KEY;
 const FROM_EMAIL = { name: 'Birthday Tracker', email: process.env.FROM_EMAIL };
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 async function sendEmail(toEmail, subject, htmlContent) {
   await axios.post(
