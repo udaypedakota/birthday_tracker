@@ -228,8 +228,17 @@ app.use((req, res, next) => {
 });
 
 const DATA_DIR = path.join(__dirname, 'src/assets/data');
+
+// ensure data files exist
+['events.json','contributions.json','expenses.json','employees.json'].forEach(f => {
+  const fp = path.join(DATA_DIR, f);
+  if (!fs.existsSync(fp)) fs.writeFileSync(fp, '[]', 'utf8');
+});
 function readJSON(file) { return JSON.parse(fs.readFileSync(path.join(DATA_DIR, file), 'utf8')); }
 function writeJSON(file, data) { fs.writeFileSync(path.join(DATA_DIR, file), JSON.stringify(data, null, 2), 'utf8'); }
+
+// ── Health check ────────────────────────────────────
+app.get('/', (req, res) => res.json({ status: 'Birthday Tracker API running' }));
 
 // ── Events ──────────────────────────────────────────
 app.get('/api/events', (req, res) => res.json(readJSON('events.json')));
