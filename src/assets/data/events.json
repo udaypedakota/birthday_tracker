@@ -15,7 +15,7 @@
   { "id": "ev014", "employeeId": "CBHYD640", "employeeName": "Karthik Jakkula",              "birthDate": "1994-02-17", "celebrationDate": "2026-02-17", "avatar": "assets/images/Karthk.png" },
   { "id": "ev015", "employeeId": "CBHYD642", "employeeName": "Siddi Amulya",                 "birthDate": "2000-05-01", "celebrationDate": "2026-05-01", "avatar": "assets/images/Amulya.jpeg" },
   { "id": "ev016", "employeeId": "CBHYD643", "employeeName": "Dilip Kumar Gurijala",         "birthDate": "2001-03-24", "celebrationDate": "2026-03-24", "avatar": "assets/images/Dileep gurjala.png" },
-  { "id": "ev017", "employeeId": "CBHYD644", "employeeName": "Kotturu Saikumar",             "birthDate": "1999-02-03", "celebrationDate": "2026-04-15", "avatar": "assets/images/sk.jpeg" },
+  { "id": "ev017", "employeeId": "CBHYD644", "employeeName": "Kotturu Saikumar",             "birthDate": "1999-02-03", "celebrationDate": "2026-02-03", "avatar": "assets/images/sk.jpeg" },
   { "id": "ev018", "employeeId": "CBHYD645", "employeeName": "Gedela Dileep Kumar",          "birthDate": "1998-08-13", "celebrationDate": "2026-06-17", "avatar": "assets/images/Dileep Gadala.png" },
   { "id": "ev019", "employeeId": "CBHYD646", "employeeName": "Laxmi Prasanna Kumar S",       "birthDate": "1998-09-10", "celebrationDate": "2026-09-10", "avatar": "assets/images/Prasanna.png" },
   { "id": "ev020", "employeeId": "CBHYD647", "employeeName": "Bagadi Jogarao",               "birthDate": "1998-01-18", "celebrationDate": "2026-01-18", "avatar": "assets/images/jogarao.png" },
