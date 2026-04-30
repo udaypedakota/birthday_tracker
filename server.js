@@ -262,6 +262,16 @@ app.delete('/api/expenses/:id', async (req, res) => {
   res.json({ success: true });
 });
 
+// ── Reseed employees ─────────────────────────────────
+app.post('/api/reseed-employees', async (req, res) => {
+  const DATA_DIR = path.join(__dirname, 'src/assets/data');
+  const data = JSON.parse(fs.readFileSync(path.join(DATA_DIR, 'employees.json'), 'utf8'));
+  await db.collection('employees').deleteMany({});
+  await db.collection('employees').insertMany(data);
+  console.log(`Reseeded employees with ${data.length} records`);
+  res.json({ success: true, count: data.length });
+});
+
 // ── Birthday Emails ───────────────────────────────────
 app.post('/api/send-birthday-emails', async (req, res) => {
   await sendBirthdayEmails();
