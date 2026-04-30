@@ -316,12 +316,12 @@ async function sendBirthdayEmails(targetDate) {
   }
 }
 
-// Every day at 12:00 AM — send emails for today's birthdays
-cron.schedule('0 0 * * *', () => {
+// Every day at 12:00 AM IST (6:30 PM UTC previous day)
+cron.schedule('30 18 * * *', () => {
   const todayDate = getLocalDate();
   console.log(`[CRON] Checking birthdays for today: ${todayDate}`);
   sendBirthdayEmails(todayDate);
-});
+}, { timezone: 'Asia/Kolkata' });
 
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`🎂 Birthday Tracker API running on port ${PORT}`);
