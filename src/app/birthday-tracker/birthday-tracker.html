@@ -220,8 +220,7 @@
         <div class="header-actions">
           <select class="event-select" [(ngModel)]="selectedEventId" (ngModelChange)="onEventSelect($event)">
             <option value="">— Select Event —</option>
-            <option *ngFor="let e of events" [value]="e.id">{{ e.employeeName }} ({{ e.celebrationDate | date:'dd MMM'
-              }})</option>
+            <option *ngFor="let e of events" [value]="e.id">{{ e.employeeName }} ({{ (e.birthDate || e.celebrationDate) | date:'dd MMM' }})</option>
           </select>
           <label class="amount-label">Fixed Amount: ₹</label>
           <input type="number" class="amount-input" [(ngModel)]="fixedAmount" min="1" />
@@ -332,8 +331,7 @@
         <div class="header-actions">
           <select class="event-select" [(ngModel)]="selectedEventId" (ngModelChange)="onEventSelect($event)">
             <option value="">— Select Event —</option>
-            <option *ngFor="let e of events" [value]="e.id">{{ e.employeeName }} ({{ e.celebrationDate | date:'dd MMM'
-              }})</option>
+            <option *ngFor="let e of events" [value]="e.id">{{ e.employeeName }} ({{ (e.birthDate || e.celebrationDate) | date:'dd MMM' }})</option>
           </select>
           <button type="button" class="btn-primary" (click)="openExpenseModal()" [disabled]="!selectedEventId"
             *ngIf="isAdmin">➕ Add</button>
