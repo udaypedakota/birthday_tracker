@@ -265,6 +265,11 @@ app.delete('/api/expenses/:id', async (req, res) => {
 });
 
 // ── Reseed employees ─────────────────────────────────
+app.get('/api/employees', async (req, res) => {
+  const data = await db.collection('employees').find({}, { projection: { _id: 0 } }).toArray();
+  res.json(data);
+});
+
 app.post('/api/reseed-employees', async (req, res) => {
   const DATA_DIR = path.join(__dirname, 'src/assets/data');
   const data = JSON.parse(fs.readFileSync(path.join(DATA_DIR, 'employees.json'), 'utf8'));
