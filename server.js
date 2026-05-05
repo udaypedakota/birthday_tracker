@@ -198,7 +198,6 @@ function notificationTemplate(birthdayPersonName) {
 
 const app = express();
 app.use(express.json({ limit: '10mb' }));
-app.use(express.static(path.join(__dirname, 'src')));
 app.use((req, res, next) => {
   res.header('Access-Control-Allow-Origin', '*');
   res.header('Access-Control-Allow-Headers', 'Content-Type');
@@ -208,7 +207,10 @@ app.use((req, res, next) => {
 });
 
 // ── Health check ─────────────────────────────────────
+app.get('/health', (req, res) => res.json({ status: 'Birthday Tracker API running' }));
 app.get('/', (req, res) => res.json({ status: 'Birthday Tracker API running' }));
+
+app.use(express.static(path.join(__dirname, 'src')));
 
 // ── Events ───────────────────────────────────────────
 app.get('/api/events', async (req, res) => {
@@ -274,22 +276,30 @@ app.post('/api/reseed-employees', async (req, res) => {
 
 // ── Birthday Emails ───────────────────────────────────
 app.post('/api/send-birthday-emails', async (req, res) => {
-  await sendBirthdayEmails();
-  res.json({ success: true });
+  const date = req.body?.date || getISTDate();
+  await sendBirthdayEmails(date);
+  res.json({ success: true, date });
 });
 
-function getLocalDate() {
+function getISTDate() {
   const now = new Date();
-  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+  const ist = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }));
+  return `${ist.getFullYear()}-${String(ist.getMonth() + 1).padStart(2, '0')}-${String(ist.getDate()).padStart(2, '0')}`;
+}
+
+function getTodayMMDD() {
+  const d = getISTDate();
+  return d.slice(5); // MM-DD
 }
 
 async function sendBirthdayEmails(targetDate) {
   try {
-    const date = targetDate || getLocalDate();
+    const date = targetDate || getISTDate();
+    const mmdd = date.slice(5); // MM-DD
     const events = await db.collection('events').find({}, { projection: { _id: 0 } }).toArray();
     const employees = await db.collection('employees').find({}, { projection: { _id: 0 } }).toArray();
 
-    const birthdayPeople = events.filter(e => e.celebrationDate === date);
+    const birthdayPeople = events.filter(e => (e.birthDate || e.celebrationDate).slice(5) === mmdd);
     if (birthdayPeople.length === 0) { console.log(`[${date}] No birthdays today.`); return; }
 
     for (const person of birthdayPeople) {
@@ -316,9 +326,9 @@ async function sendBirthdayEmails(targetDate) {
   }
 }
 
-// Every day at 12:00 AM IST (6:30 PM UTC previous day)
-cron.schedule('30 18 * * *', () => {
-  const todayDate = getLocalDate();
+// Every day at 12:00 AM IST
+cron.schedule('0 0 * * *', () => {
+  const todayDate = getISTDate();
   console.log(`[CRON] Checking birthdays for today: ${todayDate}`);
   sendBirthdayEmails(todayDate);
 }, { timezone: 'Asia/Kolkata' });
