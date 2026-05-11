@@ -43,7 +43,7 @@
         </div>
         <div class="hero-content" *ngFor="let e of todayBirthdayEvents">
           <div class="hero-avatar"><img *ngIf="e.avatar" [src]="e.avatar" [alt]="e.employeeName"
-              class="hero-avatar-img" /><span *ngIf="!e.avatar">{{ e.employeeName.charAt(0) }}</span></div>
+              class="hero-avatar-img" /><span *ngIf="!e.avatar">{{ (e.employeeName || '?').charAt(0) }}</span></div>
           <div class="hero-text">
             <div class="hero-tag">🎉 Birthday Today!</div>
             <div class="hero-name">{{ e.employeeName }}</div>
@@ -103,7 +103,7 @@
           <div class="cal-detail-card" *ngFor="let e of selectedDayEvents">
             <div class="cal-detail-avatar" [class.cal-detail-avatar-today]="isToday(e.birthDate)"><img *ngIf="e.avatar"
                 [src]="e.avatar" [alt]="e.employeeName" class="avatar-img" /><span *ngIf="!e.avatar">{{
-                e.employeeName.charAt(0) }}</span></div>
+                (e.employeeName || '?').charAt(0) }}</span></div>
             <div class="cal-detail-info">
               <strong>{{ e.employeeName }}</strong>
               <span>🎂 {{ e.birthDate | date:'dd MMM yyyy' }}</span>
@@ -138,7 +138,7 @@
         </div>
         <div class="hero-content" *ngFor="let e of todayBirthdayEvents">
           <div class="hero-avatar"><img *ngIf="e.avatar" [src]="e.avatar" [alt]="e.employeeName"
-              class="hero-avatar-img" /><span *ngIf="!e.avatar">{{ e.employeeName.charAt(0) }}</span></div>
+              class="hero-avatar-img" /><span *ngIf="!e.avatar">{{ (e.employeeName || '?').charAt(0) }}</span></div>
           <div class="hero-text">
             <div class="hero-tag">🎉 Birthday Today!</div>
             <div class="hero-name">{{ e.employeeName }}</div>
@@ -179,7 +179,7 @@
             <div class="event-avatar" [class.avatar-today]="isToday(e.birthDate || e.celebrationDate)"
               [class.avatar-done]="isPast(e.celebrationDate) && !isToday(e.birthDate || e.celebrationDate)"><img
                 *ngIf="e.avatar" [src]="e.avatar" [alt]="e.employeeName" class="avatar-img" /><span *ngIf="!e.avatar">{{
-                e.employeeName.charAt(0) }}</span></div>
+                (e.employeeName || '?').charAt(0) }}</span></div>
             <div class="event-info">
               <strong>{{ e.employeeName }}</strong>
               <span class="event-date">🎂 {{ (e.birthDate || e.celebrationDate) | date:'dd MMM' }}</span>
@@ -299,7 +299,7 @@
                 <td>{{ i + 1 }}</td>
                 <td>
                   <div class="emp-cell">
-                    <span class="emp-dot">{{ row.employee.name.charAt(0) }}</span>
+                    <span class="emp-dot">{{ (row.employee.name || '?').charAt(0) }}</span>
                     {{ row.employee.name }}
                   </div>
                 </td>
