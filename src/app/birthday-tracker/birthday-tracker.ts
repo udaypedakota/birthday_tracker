@@ -280,7 +280,7 @@ export class BirthdayTrackerComponent implements OnInit, OnDestroy {
   get sortedEvents(): BirthdayEvent[] {
     const now = new Date();
     const todayMMDD = `${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
-    const mmdd = (e: BirthdayEvent) => (e.birthDate || e.celebrationDate).slice(5);
+    const mmdd = (e: BirthdayEvent) => (e.birthDate || e.celebrationDate || '').slice(5);
     return [...this.events].sort((a, b) => {
       const aToday = mmdd(a) === todayMMDD;
       const bToday = mmdd(b) === todayMMDD;
@@ -323,7 +323,7 @@ export class BirthdayTrackerComponent implements OnInit, OnDestroy {
     // actual days
     for (let d = 1; d <= daysInMonth; d++) {
       const mmdd = `${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-      const birthdays = this.events.filter(e => (e.birthDate || e.celebrationDate).slice(5) === mmdd);
+      const birthdays = this.events.filter(e => (e.birthDate || e.celebrationDate || '').slice(5) === mmdd);
       days.push({
         date: new Date(year, month, d),
         day: d,
