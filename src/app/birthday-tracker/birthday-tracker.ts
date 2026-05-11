@@ -293,7 +293,7 @@ export class BirthdayTrackerComponent implements OnInit, OnDestroy {
   get todayBirthdayEvents(): BirthdayEvent[] {
     const now = new Date();
     const todayMMDD = `${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
-    return this.events.filter(e => (e.birthDate || e.celebrationDate).slice(5) === todayMMDD);
+    return this.events.filter(e => (e.birthDate || e.celebrationDate || '').slice(5) === todayMMDD);
   }
 
   confetti = Array.from({ length: 40 }, (_, i) => i);
