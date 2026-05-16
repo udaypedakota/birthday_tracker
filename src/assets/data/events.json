@@ -4,7 +4,6 @@
   { "id": "ev003", "employeeId": "CBHYD605", "employeeName": "Yarlanki Siva Kumar",          "birthDate": "1991-05-16", "celebrationDate": "2026-05-16", "avatar": "assets/images/SivaKumar.jpg" },
   { "id": "ev004", "employeeId": "CBHYD620", "employeeName": "Degala Sriramamurty",          "birthDate": "1990-11-14", "celebrationDate": "2026-11-14", "avatar": "assets/images/Sriram.png" },
   { "id": "ev005", "employeeId": "CBHYD621", "employeeName": "Thakkallapalli Phanidher",     "birthDate": "1993-10-12", "celebrationDate": "2026-10-12", "avatar": "assets/images/phani.JPG" },
-  { "id": "ev006", "employeeId": "CBHYD626", "employeeName": "Bora Kiran Kumar",             "birthDate": "1996-06-12", "celebrationDate": "2026-06-12", "avatar": "assets/images/kiran.png" },
   { "id": "ev007", "employeeId": "CBHYD627", "employeeName": "Aravind Gundu",                "birthDate": "1996-01-11", "celebrationDate": "2026-01-11", "avatar": "assets/images/Aravind.png" },
   { "id": "ev008", "employeeId": "CBHYD628", "employeeName": "Pedakota Uday Kumar",          "birthDate": "1998-03-31", "celebrationDate": "2026-03-31", "avatar": "assets/images/uday_pedakot.png" },
   { "id": "ev009", "employeeId": "CBHYD629", "employeeName": "Tankala Tirupati Raju",        "birthDate": "1996-09-05", "celebrationDate": "2026-09-05", "avatar": "assets/images/tirupatiraju.png" },

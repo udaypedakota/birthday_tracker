@@ -37,15 +37,6 @@
   },
   {
     "eventId": "ev008",
-    "contributorId": "CBHYD626",
-    "contributorName": "Bora Kiran Kumar",
-    "amount": 30,
-    "paidOn": "2026-04-03",
-    "status": "paid",
-    "id": "mnip5um26n6c"
-  },
-  {
-    "eventId": "ev008",
     "contributorId": "CBHYD629",
     "contributorName": "Tankala Tirupati Raju",
     "amount": 30,
@@ -286,15 +277,6 @@
     "paidOn": "2026-04-03",
     "status": "paid",
     "id": "mniq2mg4r32y"
-  },
-  {
-    "eventId": "ev001",
-    "contributorId": "CBHYD626",
-    "contributorName": "Bora Kiran Kumar",
-    "amount": 30,
-    "paidOn": "2026-04-03",
-    "status": "paid",
-    "id": "mniq2no6qymy"
   },
   {
     "eventId": "ev001",
@@ -854,13 +836,5 @@
     "status": "paid",
     "id": "mo45jl1f8wt3"
   },
-  {
-    "eventId": "ev022",
-    "contributorId": "CBHYD626",
-    "contributorName": "Bora Kiran Kumar",
-    "amount": 30,
-    "paidOn": "2026-04-18",
-    "status": "paid",
-    "id": "mo4688nnz6zy"
-  }
+}
 ]
