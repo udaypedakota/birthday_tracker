@@ -2,7 +2,7 @@
   { "id": "ev001", "employeeId": "CBHYD601", "employeeName": "Bagadi Balakrishna",           "birthDate": "1986-04-01", "celebrationDate": "2026-04-01", "avatar": "assets/images/bala.jpeg" },
   { "id": "ev002", "employeeId": "CBHYD604", "employeeName": "Vaddi Navya Sree",             "birthDate": "1994-05-25", "celebrationDate": "2026-05-25", "avatar": "assets/images/Navya22.jpg" },
   { "id": "ev003", "employeeId": "CBHYD605", "employeeName": "Yarlanki Siva Kumar",          "birthDate": "1991-05-16", "celebrationDate": "2026-05-16", "avatar": "assets/images/SivaKumar.jpg" },
-  { "id": "ev004", "employeeId": "CBHYD620", "employeeName": "Degala Sriramamurty",          "birthDate": "1990-02-09", "celebrationDate": "2026-02-09", "avatar": "assets/images/Sriram.png" },
+  { "id": "ev004", "employeeId": "CBHYD620", "employeeName": "Degala Sriramamurty",          "birthDate": "1990-11-14", "celebrationDate": "2026-11-14", "avatar": "assets/images/Sriram.png" },
   { "id": "ev005", "employeeId": "CBHYD621", "employeeName": "Thakkallapalli Phanidher",     "birthDate": "1993-10-12", "celebrationDate": "2026-10-12", "avatar": "assets/images/phani.JPG" },
   { "id": "ev006", "employeeId": "CBHYD626", "employeeName": "Bora Kiran Kumar",             "birthDate": "1996-06-12", "celebrationDate": "2026-06-12", "avatar": "assets/images/kiran.png" },
   { "id": "ev007", "employeeId": "CBHYD627", "employeeName": "Aravind Gundu",                "birthDate": "1996-01-11", "celebrationDate": "2026-01-11", "avatar": "assets/images/Aravind.png" },
