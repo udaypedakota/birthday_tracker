@@ -79,7 +79,7 @@ export class BirthdayTrackerComponent implements OnInit, OnDestroy {
     const event = this.events.find(e => e.id === this.selectedEventId);
     const contribs = this.svc.getContributionsByEvent(this.selectedEventId);
     return this.employees
-      .filter(e => e.id !== event?.employeeId)
+      .filter(e => e.id !== event?.employeeId && e.name?.trim())
       .map(e => {
         const found = contribs.find(c => c.contributorId === e.id);
         return { employee: e, contribution: found ?? null };
