@@ -196,13 +196,10 @@
               *ngIf="isAdmin">🗑</button>
           </div>
           <div class="event-card-stats">
-            <div class="mini-stat green"><span>Collected</span><strong>₹{{ svc.getSummary(e.id).totalCollected
-                }}</strong></div>
-            <div class="mini-stat red"><span>Expense</span><strong>₹{{ svc.getSummary(e.id).totalExpense }}</strong>
-            </div>
-            <div class="mini-stat" [class.blue]="svc.getSummary(e.id).netBalance >= 0"
-              [class.orange]="svc.getSummary(e.id).netBalance < 0">
-              <span>Balance</span><strong>₹{{ svc.getSummary(e.id).netBalance }}</strong>
+            <div class="mini-stat green"><span>Collected</span><strong>₹{{ getEventSummary(e.id).totalCollected }}</strong></div>
+            <div class="mini-stat red"><span>Expense</span><strong>₹{{ getEventSummary(e.id).totalExpense }}</strong></div>
+            <div class="mini-stat" [class.blue]="getEventSummary(e.id).netBalance >= 0" [class.orange]="getEventSummary(e.id).netBalance < 0">
+              <span>Balance</span><strong>₹{{ getEventSummary(e.id).netBalance }}</strong>
             </div>
           </div>
           <button type="button" class="btn-outline full-width"

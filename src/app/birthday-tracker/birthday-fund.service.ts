@@ -117,7 +117,7 @@ export class BirthdayFundService {
   }
 
   getAllSummaries(): EventSummary[] {
-    const sorted = [...this.events].filter(e => e.celebrationDate).sort((a, b) => a.celebrationDate.localeCompare(b.celebrationDate));
+    const sorted = [...this.events].filter(e => e.id && e.celebrationDate).sort((a, b) => a.celebrationDate.localeCompare(b.celebrationDate));
     let runningBalance = 0;
     return sorted.map(e => {
       const summary = this.getSummary(e.id, runningBalance);

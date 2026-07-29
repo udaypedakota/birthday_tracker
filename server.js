@@ -279,11 +279,25 @@ app.post('/api/reseed-employees', async (req, res) => {
   res.json({ success: true, count: data.length });
 });
 
+// ── Test Email ───────────────────────────────────────
+app.post('/api/test-email', async (req, res) => {
+  try {
+    const toEmail = req.body?.email;
+    if (!toEmail) return res.status(400).json({ error: 'email required' });
+    await sendEmail(toEmail, 'Test Email - Birthday Tracker', '<h2>Test email working!</h2><p>Brevo config is correct.</p>');
+    res.json({ success: true, message: `Test email sent to ${toEmail}` });
+  } catch (err) {
+    const detail = err.response?.data || err.message;
+    console.error('Test email error:', detail);
+    res.status(500).json({ success: false, error: detail });
+  }
+});
+
 // ── Birthday Emails ───────────────────────────────────
 app.post('/api/send-birthday-emails', async (req, res) => {
   const date = req.body?.date || getISTDate();
-  await sendBirthdayEmails(date);
-  res.json({ success: true, date });
+  const result = await sendBirthdayEmails(date);
+  res.json({ success: true, date, ...result });
 });
 
 function getISTDate() {
@@ -300,34 +314,35 @@ function getTodayMMDD() {
 async function sendBirthdayEmails(targetDate) {
   try {
     const date = targetDate || getISTDate();
-    const mmdd = date.slice(5); // MM-DD
+    const mmdd = date.slice(5);
     const events = await db.collection('events').find({}, { projection: { _id: 0 } }).toArray();
     const employees = await db.collection('employees').find({}, { projection: { _id: 0 } }).toArray();
 
-    const birthdayPeople = events.filter(e => (e.birthDate || e.celebrationDate).slice(5) === mmdd);
-    if (birthdayPeople.length === 0) { console.log(`[${date}] No birthdays today.`); return; }
+    const birthdayPeople = events.filter(e => e.id && (e.birthDate || e.celebrationDate || '').slice(5) === mmdd);
+    if (birthdayPeople.length === 0) {
+      console.log(`[${date}] No birthdays today.`);
+      return { sent: 0, message: 'No birthdays today' };
+    }
 
+    let sent = 0;
     for (const person of birthdayPeople) {
       const emp = employees.find(e => e.employeeId === person.employeeId);
-      if (emp) {
-        await sendEmail(
-          emp.email,
-          `Happy Birthday ${person.employeeName} - Many Happy Returns of the Day!`,
-          birthdayPersonTemplate(person.employeeName)
-        );
+      if (emp?.email) {
+        await sendEmail(emp.email, `Happy Birthday ${person.employeeName} - Many Happy Returns of the Day!`, birthdayPersonTemplate(person.employeeName));
+        sent++;
       }
-      const others = employees.filter(e => e.employeeId !== person.employeeId);
+      const others = employees.filter(e => e.employeeId !== person.employeeId && e.email);
       for (const other of others) {
-        await sendEmail(
-          other.email,
-          `Today is ${person.employeeName}'s Birthday - Wish them now!`,
-          notificationTemplate(person.employeeName)
-        );
+        await sendEmail(other.email, `Today is ${person.employeeName}'s Birthday - Wish them now!`, notificationTemplate(person.employeeName));
+        sent++;
       }
     }
     console.log(`[${date}] Birthday emails sent for: ${birthdayPeople.map(p => p.employeeName).join(', ')}`);
+    return { sent, birthdayPeople: birthdayPeople.map(p => p.employeeName) };
   } catch (err) {
-    console.error('Birthday email error:', err.response?.data || err.message);
+    const detail = err.response?.data || err.message;
+    console.error('Birthday email error:', detail);
+    return { sent: 0, error: detail };
   }
 }
 

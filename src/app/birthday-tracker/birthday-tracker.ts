@@ -277,11 +277,15 @@ export class BirthdayTrackerComponent implements OnInit, OnDestroy {
   }
 
 
+  getEventSummary(eventId: string): EventSummary {
+    return this.summaries.find(s => s.event.id === eventId) ?? this.svc.getSummary(eventId);
+  }
+
   get sortedEvents(): BirthdayEvent[] {
     const now = new Date();
     const todayMMDD = `${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
     const mmdd = (e: BirthdayEvent) => (e.birthDate || e.celebrationDate || '').slice(5);
-    return [...this.events].sort((a, b) => {
+    return [...this.events].filter(e => e.id && e.employeeName?.trim()).sort((a, b) => {
       const aToday = mmdd(a) === todayMMDD;
       const bToday = mmdd(b) === todayMMDD;
       if (aToday && !bToday) return -1;
@@ -293,7 +297,7 @@ export class BirthdayTrackerComponent implements OnInit, OnDestroy {
   get todayBirthdayEvents(): BirthdayEvent[] {
     const now = new Date();
     const todayMMDD = `${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
-    return this.events.filter(e => (e.birthDate || e.celebrationDate || '').slice(5) === todayMMDD);
+    return this.events.filter(e => e.id && e.employeeName?.trim() && (e.birthDate || e.celebrationDate || '').slice(5) === todayMMDD);
   }
 
   confetti = Array.from({ length: 40 }, (_, i) => i);
@@ -390,54 +394,49 @@ export class BirthdayTrackerComponent implements OnInit, OnDestroy {
     const year = new Date().getFullYear();
     const allSummaries = this.svc.getAllSummaries();
     const rows: any[][] = [
-      ['Birthday Celebration Tracker — Detailed Report'],
+      ['Birthday Celebration Tracker - Detailed Report'],
       ['Generated on', new Date().toLocaleDateString('en-IN')],
       [''],
     ];
 
     allSummaries.forEach(s => {
-      const contribs = s.contributions;
-      const paid   = contribs.filter(c => c.status === 'paid');
-      const pending = contribs.filter(c => c.status === 'pending');
-
-      // Event header
-      rows.push([`🎂 ${s.event.employeeName} — Birthday: ${s.event.birthDate} | Celebration: ${s.event.celebrationDate}`]);
-      rows.push(['Total Members', contribs.length, 'Paid', paid.length, 'Pending', pending.length]);
-      rows.push(['Collected (₹)', s.totalCollected, 'Expense (₹)', s.totalExpense, 'Balance (₹)', s.netBalance]);
-      rows.push(['']);
-
-      if (contribs.length > 0) {
-        rows.push(['#', 'Contributor Name', 'Amount (₹)', 'Status', 'Paid On']);
-        contribs.forEach((c, i) => {
-          rows.push([i + 1, c.contributorName, c.amount, c.status === 'paid' ? 'Paid' : 'Pending', c.status === 'paid' ? c.paidOn : '—']);
+      const allMembers = this.employees
+        .filter(e => e.id !== s.event.employeeId && e.name?.trim())
+        .map(e => {
+          const contrib = s.contributions.find(c => c.contributorId === e.id);
+          return { name: e.name, amount: this.fixedAmount, status: contrib?.status ?? 'pending', paidOn: contrib?.paidOn ?? '' };
         });
-      } else {
-        rows.push(['No contributions recorded yet.']);
-      }
+      const paid = allMembers.filter(m => m.status === 'paid');
+      const pending = allMembers.filter(m => m.status !== 'paid');
+
+      rows.push([`Birthday: ${s.event.employeeName} | Birth Date: ${s.event.birthDate} | Celebration: ${s.event.celebrationDate}`]);
+      rows.push(['Total Members', allMembers.length, 'Paid', paid.length, 'Pending', pending.length]);
+      rows.push(['Collected (Rs)', s.totalCollected, 'Expense (Rs)', s.totalExpense, 'Balance (Rs)', s.netBalance]);
+      rows.push(['']);
+      rows.push(['#', 'Employee Name', 'Amount (Rs)', 'Status', 'Paid On']);
+      allMembers.forEach((m, i) => {
+        rows.push([i + 1, m.name, m.amount, m.status === 'paid' ? 'Paid' : 'Pending', m.status === 'paid' ? m.paidOn : '-']);
+      });
 
       if (s.expenses.length > 0) {
         rows.push(['']);
         rows.push(['Expenses:']);
-        rows.push(['#', 'Category', 'Description', 'Amount (₹)', 'Date']);
-        s.expenses.forEach((x, i) => {
-          rows.push([i + 1, x.category, x.description, x.amount, x.date]);
-        });
+        rows.push(['#', 'Category', 'Description', 'Amount (Rs)', 'Date']);
+        s.expenses.forEach((x, i) => rows.push([i + 1, x.category, x.description, x.amount, x.date]));
       }
-
-      rows.push(['', '', '', '', '', '']);
-      rows.push(['--- --- --- --- ---']);
+      rows.push(['']);
+      rows.push(['---']);
       rows.push(['']);
     });
 
-    // Grand total
     rows.push(['GRAND TOTAL']);
     rows.push(['Total Events', allSummaries.length]);
-    rows.push(['Total Collected (₹)', allSummaries.reduce((a, s) => a + s.totalCollected, 0)]);
-    rows.push(['Total Expense (₹)',   allSummaries.reduce((a, s) => a + s.totalExpense, 0)]);
-    rows.push(['Net Balance (₹)',     allSummaries.reduce((a, s) => a + s.netBalance, 0)]);
+    rows.push(['Total Collected (Rs)', allSummaries.reduce((a, s) => a + s.totalCollected, 0)]);
+    rows.push(['Total Expense (Rs)',   allSummaries.reduce((a, s) => a + s.totalExpense, 0)]);
+    rows.push(['Net Balance (Rs)',     allSummaries.reduce((a, s) => a + s.netBalance, 0)]);
 
-    const csv = rows.map(r => r.map(v => `"${v}"`).join(',')).join('\n');
-    const blob = new Blob([csv], { type: 'text/csv' });
+    const csv = rows.map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(',')).join('\n');
+    const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' });
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
     a.download = `birthday-tracker-${year}.csv`;
